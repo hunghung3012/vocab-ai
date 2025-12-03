@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
-import '../models/deck.dart';
-import '../models/flashcard.dart';
-import '../services/firebase_service.dart';
+import '../../models/deck.dart';
+import '../../models/flashcard.dart';
+import '../../services/firebase_service.dart';
 
 class ImportAnkiScreen extends StatefulWidget {
   const ImportAnkiScreen({Key? key}) : super(key: key);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vocab_ai/models/vocab_model.dart';
 import 'package:vocab_ai/widgets/vocab_result_card.dart';
-import '../services/chat_service.dart';
+import '../../services/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);

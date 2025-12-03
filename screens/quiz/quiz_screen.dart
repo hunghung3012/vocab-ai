@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vocab_ai/widgets/app_bottom_nav.dart';
-import '../models/deck.dart';
-import '../models/flashcard.dart';
-import '../services/firebase_service.dart';
+import '../../models/deck.dart';
+import '../../models/flashcard.dart';
+import '../../services/firebase_service.dart';
 import 'dart:math';
 
 class QuizScreen extends StatefulWidget {

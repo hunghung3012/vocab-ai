@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vocab_ai/widgets/DashedButton.dart';
 import 'package:vocab_ai/widgets/app_bottom_nav.dart';
-import '../models/deck.dart';
-import '../services/firebase_service.dart';
+import '../../models/deck.dart';
+import '../../services/firebase_service.dart';
 import 'edit_deck_screen.dart';
 
 class DashboardScreen extends StatefulWidget {

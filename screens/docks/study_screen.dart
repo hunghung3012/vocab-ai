@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/deck.dart';
-import '../models/flashcard.dart';
-import '../services/firebase_service.dart';
-import '../services/spaced_repetition_service.dart';
+import '../../models/deck.dart';
+import '../../models/flashcard.dart';
+import '../../services/firebase_service.dart';
+import '../../services/spaced_repetition_service.dart';
 
 class StudyScreen extends StatefulWidget {
   final Deck deck;
@@ -62,25 +62,54 @@ class _StudyScreenState extends State<StudyScreen> {
     final currentCard = _cards[_currentIndex];
     final updatedCard = _srService.updateCard(currentCard, quality);
 
-    // Update in Firebase
-    await _firebaseService.updateFlashcard(updatedCard);
+    try {
+      // Update in Firebase
+      await _firebaseService.updateFlashcard(updatedCard);
 
-    // Update stats
-    setState(() {
-      if (quality >= 3) {
-        _correct++;
-      } else {
-        _incorrect++;
+      // Update stats
+      if (mounted) {
+        setState(() {
+          if (quality >= 3) {
+            _correct++;
+          } else {
+            _incorrect++;
+          }
+
+          _cards[_currentIndex] = updatedCard;
+          _showAnswer = false;
+          _currentIndex++;
+        });
+
+        // Check if finished
+        if (_currentIndex >= _cards.length) {
+          _showCompletionDialog();
+        }
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating card: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
-      _cards[_currentIndex] = updatedCard;
-      _showAnswer = false;
-      _currentIndex++;
-    });
-
-    // Check if finished
-    if (_currentIndex >= _cards.length) {
+  void _handleSkip() {
+    if (_currentIndex >= _cards.length - 1) {
+      // Last card - show completion
+      setState(() {
+        _skipped++;
+      });
       _showCompletionDialog();
+    } else {
+      setState(() {
+        _skipped++;
+        _currentIndex++;
+        _showAnswer = false;
+      });
     }
   }
 
@@ -92,10 +121,15 @@ class _StudyScreenState extends State<StudyScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: const Text(
-          '🎉 Session Complete!',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        title: const Row(
+          children: [
+            Text('🎉', style: TextStyle(fontSize: 32)),
+            SizedBox(width: 12),
+            Text(
+              'Session Complete!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -103,43 +137,89 @@ class _StudyScreenState extends State<StudyScreen> {
             Text(
               'Great work! You\'ve reviewed ${_cards.length} cards.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildStatItem('Correct', _correct, Colors.green),
-                _buildStatItem('Incorrect', _incorrect, Colors.red),
-                _buildStatItem('Skipped', _skipped, Colors.orange),
-              ],
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStatItem('Correct', _correct, Colors.green),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: Colors.grey[300],
+                  ),
+                  _buildStatItem('Incorrect', _incorrect, Colors.red),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: Colors.grey[300],
+                  ),
+                  _buildStatItem('Skipped', _skipped, Colors.orange),
+                ],
+              ),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text('Done'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _currentIndex = 0;
-                _correct = 0;
-                _incorrect = 0;
-                _skipped = 0;
-                _showAnswer = false;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
-              foregroundColor: Colors.white,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _currentIndex = 0;
+                      _correct = 0;
+                      _incorrect = 0;
+                      _skipped = 0;
+                      _showAnswer = false;
+                    });
+                    _loadCards();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Study Again',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
             ),
-            child: const Text('Study Again'),
           ),
         ],
       ),
@@ -157,11 +237,13 @@ class _StudyScreenState extends State<StudyScreen> {
             color: color,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -178,7 +260,10 @@ class _StudyScreenState extends State<StudyScreen> {
 
     if (_cards.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.deck.name)),
+        appBar: AppBar(
+          title: Text(widget.deck.name),
+          backgroundColor: Colors.purple,
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -194,9 +279,33 @@ class _StudyScreenState extends State<StudyScreen> {
                 'No cards due for review.',
                 style: TextStyle(color: Colors.grey[600]),
               ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                ),
+                child: const Text('Go Back'),
+              ),
             ],
           ),
         ),
+      );
+    }
+
+    if (_currentIndex >= _cards.length) {
+      // Safety check
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showCompletionDialog();
+        }
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -322,24 +431,9 @@ class _StudyScreenState extends State<StudyScreen> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.volume_up, color: Colors.grey[600]),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Pronounce',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
                           const SizedBox(height: 32),
                           Text(
-                            'Click to reveal definition',
+                            'Tap to reveal definition',
                             style: TextStyle(
                               color: Colors.grey[500],
                               fontSize: 14,
@@ -380,6 +474,17 @@ class _StudyScreenState extends State<StudyScreen> {
                                   fontStyle: FontStyle.italic,
                                 ),
                                 textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                          if (currentCard.imageUrl != null && currentCard.imageUrl!.isNotEmpty) ...[
+                            const SizedBox(height: 24),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                currentCard.imageUrl!,
+                                height: 200,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ],
@@ -455,12 +560,7 @@ class _StudyScreenState extends State<StudyScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          _skipped++;
-                          _currentIndex++;
-                        });
-                      },
+                      onPressed: _handleSkip,
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

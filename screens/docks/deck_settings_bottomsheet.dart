@@ -6,8 +6,8 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
-import '../models/deck.dart';
-import '../services/firebase_service.dart';
+import '../../models/deck.dart';
+import '../../services/firebase_service.dart';
 
 void showDeckSettings(BuildContext context, Deck deck) {
   showModalBottomSheet(

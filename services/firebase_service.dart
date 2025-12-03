@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/flashcard.dart';
@@ -182,6 +184,11 @@ class FirebaseService {
       'totalDecks': decks.length,
     };
   }
+  Future<String> uploadImage(File imageFile, String deckId) async {
+    // Implement upload to Firebase Storage
+    // Return image URL
+    return "x";
+  }
 
   Future<void> updateStudyStreak() async {
     if (userId == null) return;
@@ -222,4 +229,5 @@ class FirebaseService {
     }
     // Same day, no update needed
   }
+
 }

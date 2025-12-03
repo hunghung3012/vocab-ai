@@ -2,17 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/home_screen.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/create_deck_screen.dart';
-import 'screens/study_screen.dart';
-import 'screens/edit_deck_screen.dart';
-import 'screens/chat_screen.dart';
-import 'screens/quiz_screen.dart';
-import 'screens/import_anki_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/docks/dashboard_screen.dart';
+import 'screens/docks/create_deck_screen.dart';
+import 'screens/docks/study_screen.dart';
+import 'screens/docks/edit_deck_screen.dart';
+import 'screens/chat_ai/chat_screen.dart';
+import 'screens/quiz/quiz_screen.dart';
+import 'screens/docks/import_anki_screen.dart';
 import 'models/deck.dart';
 import 'firebase_options.dart';
-import 'screens/decks_screen.dart';
+import 'screens/docks/decks_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load .env file
