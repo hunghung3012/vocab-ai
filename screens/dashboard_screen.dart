@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:vocab_ai/screens/deck_settings_bottomsheet.dart';
+import 'package:vocab_ai/widgets/DashedButton.dart';
+import 'package:vocab_ai/widgets/app_bottom_nav.dart';
 import '../models/deck.dart';
 import '../services/firebase_service.dart';
 import 'edit_deck_screen.dart';
@@ -93,20 +94,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
+                    // ThÃƒÂªm chÃƒÂºt bÃƒÂ³ng Ã„â€˜Ã¡Â»â€¢ nhÃ¡ÂºÂ¹ cho container nÃ¡Â»â€¢i bÃ¡ÂºÂ­t hÃ†Â¡n (tÃƒÂ¹y chÃ¡Â»Ân)
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
-                      _buildActionButton(
+                      // Button 1: Create New Deck (MÃƒ u TÃƒÂ­m)
+                      DashedButton(
+                        text: 'Create New Deck',
                         icon: Icons.add,
-                        label: 'Create New Deck',
+                        color: const Color(0xFF9333EA), // MÃƒÂ£ mÃƒ u tÃƒÂ­m giÃ¡Â»â€˜ng design
                         onTap: () {
                           Navigator.pushNamed(context, '/create-deck');
                         },
                       ),
-                      const SizedBox(height: 12),
-                      _buildActionButton(
-                        icon: Icons.upload,
-                        label: 'Import Anki Deck',
+
+                      const SizedBox(height: 16), // TÃ„Æ’ng khoÃ¡ÂºÂ£ng cÃƒÂ¡ch lÃƒÂªn chÃƒÂºt cho thoÃƒÂ¡ng
+
+                      // Button 2: Import Anki Deck (MÃƒ u Xanh DÃ†Â°Ã†Â¡ng)
+                      DashedButton(
+                        text: 'Import Anki Deck',
+                        icon: Icons.file_upload_outlined, // Icon upload giÃ¡Â»â€˜ng design hÃ†Â¡n
+                        color: const Color(0xFF2563EB), // MÃƒÂ£ mÃƒ u xanh dÃ†Â°Ã†Â¡ng giÃ¡Â»â€˜ng design
                         onTap: () {
                           Navigator.pushNamed(context, '/import-anki');
                         },
@@ -196,7 +211,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+
     );
   }
 
@@ -435,19 +451,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  showDeckSettings(context, deck);
-                },
-                icon: const Icon(Icons.settings),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.grey[100],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
             ],
           ),
         ],
@@ -486,45 +489,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.purple,
-      unselectedItemColor: Colors.grey,
-      currentIndex: 1,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard),
-          label: 'Dashboard',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.quiz),
-          label: 'Quiz',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: 'Chat',
-        ),
-      ],
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            Navigator.pushReplacementNamed(context, '/');
-            break;
-          case 1:
-            break;
-          case 2:
-            Navigator.pushNamed(context, '/quiz');
-            break;
-          case 3:
-            Navigator.pushNamed(context, '/chat');
-            break;
-        }
-      },
-    );
-  }
+
 }
