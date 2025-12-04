@@ -7,7 +7,7 @@ import 'screens/docks/dashboard_screen.dart';
 import 'screens/docks/create_deck_screen.dart';
 import 'screens/docks/study_screen.dart';
 import 'screens/docks/edit_deck_screen.dart';
-import 'screens/chat_ai/chat_screen.dart';
+import 'screens/chat_screen.dart';
 import 'screens/quiz/quiz_screen.dart';
 import 'screens/docks/import_anki_screen.dart';
 import 'models/deck.dart';

@@ -134,53 +134,53 @@ class DeckSettingsBottomSheet extends StatelessWidget {
       });
 
       // ================================
-      // 2) BULK INSERT (VERY FAST)
+      // 2) BULK INSERT (VERY FAST) - Using batch for better performance
       // ================================
-      await db.transaction((txn) async {
-        for (int i = 0; i < cards.length; i++) {
-          final card = cards[i];
-          final noteId = i + 1;
-          final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      final batch = db.batch();
+      for (int i = 0; i < cards.length; i++) {
+        final card = cards[i];
+        final noteId = i + 1;
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-          // Insert "note"
-          await txn.insert('notes', {
-            'id': noteId,
-            'guid': card.id,
-            'mid': 1,
-            'mod': now,
-            'usn': -1,
-            'tags': '',
-            'flds':
-            '${card.word}\x1f${card.definition}${card.example != null ? '\x1f${card.example}' : ''}',
-            'sfld': card.word,
-            'csum': card.word.hashCode,
-            'flags': 0,
-            'data': ''
-          });
+        // Insert "note"
+        batch.insert('notes', {
+          'id': noteId,
+          'guid': card.id,
+          'mid': 1,
+          'mod': now,
+          'usn': -1,
+          'tags': '',
+          'flds':
+          '${card.word}\x1f${card.definition}${card.example != null ? '\x1f${card.example}' : ''}',
+          'sfld': card.word,
+          'csum': card.word.hashCode,
+          'flags': 0,
+          'data': ''
+        });
 
-          // Insert "card"
-          await txn.insert('cards', {
-            'id': noteId,
-            'nid': noteId,
-            'did': 1,
-            'ord': 0,
-            'mod': now,
-            'usn': -1,
-            'type': 0,
-            'queue': 0,
-            'due': 0,
-            'ivl': 0,
-            'factor': 2500,
-            'reps': 0,
-            'lapses': 0,
-            'left': 0,
-            'odue': 0,
-            'odid': 0,
-            'flags': 0,
-            'data': ''
-          });
-        }
-      });
+        // Insert "card"
+        batch.insert('cards', {
+          'id': noteId,
+          'nid': noteId,
+          'did': 1,
+          'ord': 0,
+          'mod': now,
+          'usn': -1,
+          'type': 0,
+          'queue': 0,
+          'due': 0,
+          'ivl': 0,
+          'factor': 2500,
+          'reps': 0,
+          'lapses': 0,
+          'left': 0,
+          'odue': 0,
+          'odid': 0,
+          'flags': 0,
+          'data': ''
+        });
+      }
+      await batch.commit(noResult: true);
 
       await db.close();
 
